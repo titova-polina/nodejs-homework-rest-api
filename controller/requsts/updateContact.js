@@ -1,7 +1,6 @@
-const Joi = require("joi");
 const mongoose = require("mongoose");
-const { HttpError, ctrlWrapper } = require("../../helpers");
 const Contact = require("../../models/contacts");
+const { schema, HttpError, ctrlWrapper } = require("../../models/joi");
 
 const updateContact = async (req, res) => {
   const id = req.params.contactId;
@@ -15,13 +14,6 @@ const updateContact = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw HttpError(400, "Invalid Id");
   }
-
-  const schema = Joi.object({
-    name: Joi.string(),
-    email: Joi.string().email(),
-    phone: Joi.string().min(10).max(15),
-    favorite: Joi.boolean(),
-  });
 
   const { error } = schema.validate(req.body);
 

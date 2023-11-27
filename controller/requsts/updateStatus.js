@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const { HttpError, ctrlWrapper } = require("../../helpers");
 const Contact = require("../../models/contacts");
+const { HttpError, ctrlWrapper } = require("../../models/joi");
 
 const updateStatusContact = async (req, res) => {
   const id = req.params.contactId;

@@ -1,6 +1,5 @@
-const Joi = require("joi");
-const { HttpError, ctrlWrapper } = require("../../helpers");
 const Contact = require("../../models/contacts");
+const { schema, HttpError, ctrlWrapper } = require("../../models/joi");
 
 const addContact = async (req, res) => {
   const contactNew = {
@@ -9,13 +8,6 @@ const addContact = async (req, res) => {
     phone: req.body.phone,
     favorite: req.body.favorite,
   };
-
-  const schema = Joi.object({
-    name: Joi.string().required(),
-    email: Joi.string().email().required(),
-    phone: Joi.string().min(10).max(15).required(),
-    favorite: Joi.boolean(),
-  });
 
   const { error } = schema.validate(req.body);
 

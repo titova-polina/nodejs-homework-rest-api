@@ -5,22 +5,7 @@ const { deleteById } = require("./removeContact.js");
 const { putById } = require("./updateContact.js");
 const { updateStatusContact } = require("./updateStatusContact");
 const Joi = require("joi");
-const ctrlWrapper = (ctrl) => {
-  const func = async (req, res, next) => {
-    try {
-      await ctrl(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  };
-  return func;
-};
-
-const HttpError = (status, message) => {
-  const error = new Error(message);
-  error.status = status;
-  return error;
-};
+const { HttpError } = require("../../models/joi.js");
 
 const contactUpdate = (data) => {
   const contactSchema = Joi.object({
@@ -52,7 +37,5 @@ module.exports = {
   deleteById,
   putById,
   updateStatusContact,
-  ctrlWrapper,
   checkBody,
-  HttpError,
 };
