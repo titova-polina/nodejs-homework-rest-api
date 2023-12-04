@@ -7,17 +7,6 @@ const schema = Joi.object({
   favorite: Joi.boolean(),
 });
 
-const ctrlWrapper = (ctrl) => {
-  const func = async (req, res, next) => {
-    try {
-      await ctrl(req, res, next);
-    } catch (error) {
-      next(error);
-    }
-  };
-  return func;
-};
-
 const HttpError = (status, message) => {
   const error = new Error(message);
   error.status = status;
@@ -26,6 +15,5 @@ const HttpError = (status, message) => {
 
 module.exports = {
   schema,
-  ctrlWrapper,
   HttpError,
 };

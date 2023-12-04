@@ -1,11 +1,6 @@
-const { getAll } = require("./listContacts.js");
-const { getById } = require("./getContactById.js");
-const { postContact } = require("./addContact.js");
-const { deleteById } = require("./removeContact.js");
-const { putById } = require("./updateContact.js");
-const { updateStatusContact } = require("./updateStatusContact");
+const { contacts } = require("../controller/contacts.js");
 const Joi = require("joi");
-const { HttpError } = require("../../models/joi.js");
+const { HttpError } = require("../models/joi.js");
 
 const contactUpdate = (data) => {
   const contactSchema = Joi.object({
@@ -31,11 +26,6 @@ const checkBody = (req, res, next) => {
 };
 
 module.exports = {
-  getAll,
-  getById,
-  postContact,
-  deleteById,
-  putById,
-  updateStatusContact,
+  contacts,
   checkBody,
 };
