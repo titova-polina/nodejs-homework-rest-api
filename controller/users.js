@@ -1,7 +1,4 @@
-const bcrypt = require("bcrypt");
-const userSchems = require("../models/user");
 const User = require("../models/user");
-const { HttpError } = require("../helpers/joi");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -9,111 +6,62 @@ async function register(req, res, next) {
   const { email, password, subscription } = req.body;
 
   try {
-    const user = await User.findOne({
-      email,
-      password,
-      subscription,
-    }).exec();
+    const existingUser = await User.findOne({ email });
 
-    if (!user) {
-      return res
-        .status(400)
-        .send({ message: "Помилка від Joi або іншої бібліотеки валідації" });
-    }
-
-    if (email !== null) {
+    if (existingUser) {
       return res.status(409).send({ message: "Email in use" });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const user = new User({ subscription, email });
+    user.setPassword(password);
+    await user.save();
 
-    await User.create({ email, password: passwordHash });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-    if (email) {
-      res
-        .status(201)
-        .send({ user: { email: email, subscription: subscription } });
-    }
-
-    req.send({ email, password });
+    res.status(201).send({
+      token,
+      user: {
+        email: email,
+        subscription: subscription,
+      },
+    });
   } catch (error) {
     next(error);
   }
 }
 
 async function login(req, res, next) {
-  const { email, password, subscription } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const token = jwt.sign({ email: User.email }, process.env.JWT_SECRET);
     const user = await User.findOne({
       email,
-      password,
-      subscription,
-    }).exec();
+    });
 
-    if (!user) {
-      return res
-        .status(400)
-        .send({ message: "Помилка від Joi або іншої бібліотеки валідації" });
-    }
+    const verified = await user.verifyPassword(password);
 
-    if (user === null) {
+    if (!user || !verified) {
       return res.status(401).send({ message: "Email or password is wrong" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-    if (isMatch === false) {
-      return res.status(401).send({ message: "Email or password is wrong" });
-    }
-
-    if (email) {
-      res.status(200).send({ token: token, user: { email, subscription } });
-    }
-
-    req.send({ email: email, password: password });
+    res
+      .status(200)
+      .send({ token, user: { email, subscription: user.subscription } });
   } catch (error) {
     next(error);
   }
 }
 
 async function logout(req, res, next) {
-  const { _id } = req.body;
-  const token = jwt.sign({ email: User.email }, process.env.JWT_SECRET);
-
-  try {
-    const userId = await User.findOne({ _id }).exec();
-    if (userId === null) {
-      res.status(401).send({ message: "Not authorized" });
-    }
-    res.send(`Bearer ${{ token }}`);
-    res.status(204);
-  } catch (error) {
-    next(error);
-  }
+  res.status(204).send();
 }
 
 async function current(req, res, next) {
-  const { email, subscription } = req.body;
-  const { error } = userSchems.validate(req.body);
+  const user = req.user;
 
-  if (error) {
-    throw HttpError(400, "Missing or invalid fields");
-  }
-  const token = jwt.sign({ email: User.email }, process.env.JWT_SECRET);
-
-  try {
-    if (token === null) {
-      res.status(401).send({ message: "Not authorized" });
-    }
-    if (token) {
-      res.status(200).send({ email, subscription });
-    }
-    res.send(`Bearer ${{ token }}`);
-  } catch (error) {
-    next(error);
-  }
+  res.status(200).send({ user });
 }
 
 module.exports = { register, login, logout, current };
