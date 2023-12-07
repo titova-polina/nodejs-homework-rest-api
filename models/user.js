@@ -16,11 +16,17 @@ const userSchema = new mongoose.Schema({
     enum: ["starter", "pro", "business"],
     default: "starter",
   },
-  token: String,
+  avatarURL: {
+    type: String,
+    default: null,
+  },
+  gravatar: {
+    type: String,
+    default: null,
+  },
 });
 
 userSchema.methods.setPassword = function (password) {
-  console.log("AAAAAAAAA", password);
   this.password = bCrypt.hashSync(password, bCrypt.genSaltSync(6));
 };
 

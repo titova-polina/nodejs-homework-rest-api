@@ -1,6 +1,7 @@
 const User = require("../models/user");
+const gravatar = require("gravatar");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
+const { normalizeImage } = require("../helpers/jimp");
 
 async function register(req, res, next) {
   const { email, password, subscription } = req.body;
@@ -12,7 +13,11 @@ async function register(req, res, next) {
       return res.status(409).send({ message: "Email in use" });
     }
 
-    const user = new User({ subscription, email });
+    const user = new User({
+      subscription,
+      email,
+      gravatar: gravatar.url(email, {}, "http"),
+    });
     user.setPassword(password);
     await user.save();
 
@@ -64,4 +69,24 @@ async function current(req, res, next) {
   res.status(200).send({ user });
 }
 
-module.exports = { register, login, logout, current };
+async function uploadAvatar(req, res, next) {
+  try {
+    await normalizeImage(req.file);
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { avatarURL: req.file.filename },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    res.status(200).send(user);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { register, login, logout, current, uploadAvatar };

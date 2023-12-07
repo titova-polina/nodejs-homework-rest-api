@@ -1,4 +1,3 @@
-const Contact = require("../models/contacts");
 const schema = require("../models/contacts");
 const { HttpError } = require("../helpers/joi");
 const mongoose = require("mongoose");
@@ -19,7 +18,7 @@ async function addContact(req, res, next) {
     throw HttpError(400, "Missing or invalid required fields");
   }
 
-  const newContact = await Contact.create(contactNew);
+  const newContact = await schema.create(contactNew);
 
   res.status(201).json(newContact);
 }
@@ -30,7 +29,7 @@ async function getContactById(req, res, next) {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw HttpError(400, "Invalid Id");
   }
-  const contactOn = await Contact.findOne({ _id: id, owner: user._id });
+  const contactOn = await schema.findOne({ _id: id, owner: user._id });
   if (contactOn) {
     return res.status(200).send(contactOn);
   }
@@ -39,7 +38,7 @@ async function getContactById(req, res, next) {
 
 async function listContacts(req, res, next) {
   const user = req.user;
-  const contacts = await Contact.find({ owner: user._id });
+  const contacts = await schema.find({ owner: user._id });
   res.status(200).json({ contacts });
 }
 
@@ -49,7 +48,7 @@ async function removeContact(req, res, next) {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw HttpError(400, "Invalid Id");
   }
-  const result = await Contact.findOneAndDelete({ _id: id, owner: user._id });
+  const result = await schema.findOneAndDelete({ _id: id, owner: user._id });
   if (result === null) {
     throw HttpError(404, "Not found");
   }
@@ -75,7 +74,7 @@ async function updateContact(req, res, next) {
     throw HttpError(400, "Missing or invalid fields");
   }
 
-  const newContact = await Contact.findOneAndUpdate(
+  const newContact = await schema.findOneAndUpdate(
     { _id: id, owner: user._id },
     contactNew,
     {
@@ -97,7 +96,7 @@ async function updateStatus(req, res, next) {
     favorite: !!req.body.favorite,
   };
 
-  const newContact = await Contact.findByIdAndUpdate(
+  const newContact = await schema.findByIdAndUpdate(
     { _id: id, owner: user._id },
     contactNew,
     {
