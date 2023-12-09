@@ -157,6 +157,8 @@ async function reVerify(req, res, next) {
       });
     }
 
+    res.status(200).send({ message: "Resend email varification" });
+
     const user = new User({
       email,
       verificationToken,
