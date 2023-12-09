@@ -6,7 +6,7 @@ const config = {
   port: 465,
   secure: true,
   auth: {
-    user: "titoff.polina@meta.ua",
+    user: "dusher26@meta.ua",
     pass: process.env.PASSWORD,
   },
 };
@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport(config);
 
 const sendVerificationEmail = async (email, verificarionToken) => {
   const emailOptions = {
-    from: "titoff.polina@meta.ua",
+    from: "dusher26@meta.ua",
     to: email,
     subject: "Nodemailer test",
     text: "Привіт. Ми тестуємо надсилання листів!",
