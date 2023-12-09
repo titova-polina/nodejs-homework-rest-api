@@ -24,6 +24,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  verified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: {
+    type: String,
+  },
 });
 
 userSchema.methods.setPassword = function (password) {

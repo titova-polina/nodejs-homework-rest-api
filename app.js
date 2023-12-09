@@ -14,7 +14,6 @@ app.use(express.json());
 
 app.use("/users", usersRoutes);
 app.use("/contacts", contactsRoutes);
-
 app.use("/avatars", express.static(path.join(__dirname, "public", "avatars")));
 
 app.use((req, res) => {
@@ -22,6 +21,7 @@ app.use((req, res) => {
 });
 
 app.use((error, req, res, next) => {
+  console.log("FINAL ERROR", error);
   if (error instanceof multer.MulterError) {
     if (error.message === "Unexpected field") {
       return res.status(400).send({ message: "Invalid body" });
